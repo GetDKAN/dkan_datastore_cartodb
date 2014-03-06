@@ -1,0 +1,8 @@
+name = DKAN Datastore CartoDB
+description = CartoDB integration for DKAN.
+package = DKAN API
+version = 7.x-1.0-beta1
+core = 7.x
+php = 5.2.4
+dependencies[] = dkan_datastore
+files[] = 'CartoDbDatastore.inc'

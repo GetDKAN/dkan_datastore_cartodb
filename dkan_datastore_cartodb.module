@@ -1,0 +1,43 @@
+<?php
+
+/**
+ * @file
+ * Module file for CartoDB integration.
+ */
+
+/**
+ * Implements hook_menu().
+ */
+function dkan_datastore_cartodb_menu() {
+  $items = array();
+
+  $items['admin/dkan/cartodb'] = array(
+    'title' => 'DKAN CartoDB',
+    'description' => 'Cartodb settings for DKAN.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('dkan_datastore_cartodb_settings'),
+    'access arguments' => array('administer site configuration'),
+  );
+
+  return $items;
+}
+
+/**
+ * Menu Callback for DKAN CartoDB settings.
+ */
+function dkan_datastore_cartodb_settings() {
+  $form = array();
+  $form['dkan_datastore_cartodb_user'] = array(
+    '#type' => 'textfield',
+    '#title' => t('CartoDB Username.'),
+    '#description' => t('Sign up for a username at !url.', array('!url' => 'http://cartodb.com')),
+    '#default_value' => variable_get('dkan_datastore_cartodb_user', ''),
+  );
+  $form['dkan_datastore_cartodb_key'] = array(
+    '#type' => 'textfield',
+    '#title' => t('CartoDB API Key.'),
+    '#description' => t('Sign up for an API key at !url.', array('!url' => 'http://cartodb.com')),
+    '#default_value' => variable_get('dkan_datastore_cartodb_key', ''),
+  );
+  return system_settings_form($form);
+}

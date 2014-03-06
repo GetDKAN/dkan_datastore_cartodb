@@ -1,0 +1,20 @@
+<?php
+
+/**
+ * @file
+ * Installation settings for CartoDB integration.
+ */
+
+/**
+ * Implements hook_install().
+ */
+function dkan_datastore_cartodb_install() {
+  variable_set('dkan_datastore_class', 'CartoDbDatastore');
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function dkan_datastore_cartodb_uninstall() {
+  variable_set('dkan_datastore_class', 'DkanDatastore');
+}
