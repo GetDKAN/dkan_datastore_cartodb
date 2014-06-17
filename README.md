@@ -11,4 +11,4 @@ The CartoDB SQL API is made available for querying instead of the native DKAN Da
 
 This module is still in development.
 
-![screen shot 2014-06-17 at 11 07 15 am](https://cloud.githubusercontent.com/assets/512243/3304982/bede3bf0-f650-11e3-9479-7fcd385f232d.png)
+![screen shot 2014-06-17 at 2 46 57 pm](https://cloud.githubusercontent.com/assets/512243/3304996/d5e9e254-f650-11e3-8adc-56b110754e36.png)
