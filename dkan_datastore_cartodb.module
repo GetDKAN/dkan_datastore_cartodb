@@ -10,7 +10,7 @@
  */
 function dkan_datastore_cartodb_menu() {
   $items = array();
-
+  // TODO: put in carto settings module.
   $items['admin/dkan/cartodb'] = array(
     'title' => 'DKAN CartoDB',
     'description' => 'Cartodb settings for DKAN.',
