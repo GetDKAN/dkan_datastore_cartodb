@@ -5,6 +5,67 @@
  * Installation settings for CartoDB integration.
  */
 
+
+/**
+ * Implements hook_schema().
+ */
+function dkan_datastore_cartodb_schema() {
+  $schema['dkan_datastore_cartodb'] = array(
+    'description' => 'Storage for CartoDB tables.',
+    'fields' => array(
+      'id' => array(
+        'description' => 'Autoincrement.',
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'uuid' => array(
+        'description' => 'UUID of the Resource.',
+        'type' => 'varchar',
+        'type' => 'varchar',
+        'length' => 64,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'table_id' => array(
+        'description' => 'CartoDB Table ID.',
+        'type' => 'varchar',
+        'type' => 'varchar',
+        'length' => 64,
+        'default' => '',
+      ),
+      'queue_id' => array(
+        'description' => 'CartoDB Queue ID.',
+        'type' => 'varchar',
+        'length' => 64,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'table_name' => array(
+        'description' => 'CartoDB Table Name.',
+        'type' => 'varchar',
+        'length' => 255,
+        'default' => '',
+      ),
+    ),
+    'indexes' => array(
+      'id' => array('id'),
+      'uuid' => array('uuid'),
+    ),
+    //'unique keys' => array(
+    //  'uuid' => array('uuid'),
+   // ),
+    'foreign keys' => array(
+      'node_uuid' => array(
+        'table' => 'node',
+        'columns' => array('uuid' => 'uuid'),
+      ),
+    ),
+    'primary key' => array('id'),
+  );
+  return $schema;
+}
+
 /**
  * Implements hook_install().
  */

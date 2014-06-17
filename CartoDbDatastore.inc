@@ -8,6 +8,10 @@ class CartoDbDatastore extends Datastore implements DatastoreForm {
 
   public $endpoint = '.cartodb.com/api/v1/imports';
 
+  const CARTODB_STATUS_EMPTY = 0;
+  const CARTODB_STATUS_UPLOADING = 1;
+  const CARTODB_STATUS_IMPORTED = 2;
+
   /**
    * Constructor, set id and load default configuration.
    */
@@ -17,9 +21,53 @@ class CartoDbDatastore extends Datastore implements DatastoreForm {
     $this->cartoUser = variable_get('dkan_datastore_cartodb_user', '');
     $this->key = variable_get('dkan_datastore_cartodb_key', '');
     $this->endpoint = "https://" . $this->cartoUser . $this->endpoint;
+    // CartoDB Settings.
+    $this->table_id = '';
+    $this->table_name = '';
+    $this->queue_id = '';
+    $result = db_query("SELECT queue_id, table_id, table_name FROM {dkan_datastore_cartodb} WHERE uuid = :uuid", array(':uuid' => $this->uuid));
+    $this->cartoStatus = self::CARTODB_STATUS_EMPTY;
+    foreach ($result as $record) {
+      if ($record->table_id) {
+        $this->table_id = $record->table_id;
+        $this->table_name = $record->table_name;
+        $this->cartoStatus = self::CARTODB_STATUS_IMPORTED;
+      }
+      elseif ($record->queue_id) {
+        $this->queue_id = $record->queue_id;
+        $this->cartoStatus = self::CARTODB_STATUS_UPLOADING;
+      }
+    }
   }
 
-  public function status() {
+  function sync() {
+    $url = $this->endpoint . '/' . $this->queue_id . '?api_key=' . $this->key ;
+    $request = drupal_http_request($url);
+    $data = drupal_json_decode($request->data);
+    $record = new stdClass();
+    $record->uuid = $this->uuid;
+    $record->queue_id = $data['queue_id'];
+    $this->queue_id = $record->queue_id;
+    if ($data['state'] == 'complete') {
+      $record->table_id = $data['table_id'];
+      $record->table_name = $data['table_name'];
+      $this->table_id = $record->table_id;
+      $this->table_name = $record->table_name;
+    }
+    drupal_write_record('dkan_datastore_cartodb', $record);
+  }
+
+  function status() {
+    if ($this->cartoStatus == self::CARTODB_STATUS_IMPORTED) {
+      // TODO: Make a theme function.
+      return t('File has been uploaded to CartoDB.') . '<p> <strong>CartoDB Table ID:</strong> ' . $this->table_id . '<br><strong>CartoDB Table Name:</strong> ' . $this->table_name;
+    }
+    elseif ($this->cartoStatus == self::CARTODB_STATUS_UPLOADING) {
+      return t('File uploading');
+    }
+    else {
+      return t('File not uploaded');
+    }
     return FALSE;
   }
 
@@ -51,13 +99,11 @@ class CartoDbDatastore extends Datastore implements DatastoreForm {
     $request = drupal_http_request($this->endpoint, $options);
     if (isset($request->data) && $data = drupal_json_decode($request->data)) {
       if ($data['success']) {
+        // TODO: keep checking until uploaded.
         drupal_set_message("Request suceeded");
-        $options = array(
-          'data' => 'api_key=' . $this->key,
-          'method' => 'POST',
-        );
-        $url = $this->endpoint . '/' . $data['item_queue_id'];
-        $request = drupal_http_request($url, $options);
+        $this->cartoStatus = self::CARTODB_STATUS_UPLOADING;
+        $this->queue_id = $data['item_queue_id'];
+        $this->sync();
       }
     }
     elseif (isset($request->error)) {
@@ -67,11 +113,21 @@ class CartoDbDatastore extends Datastore implements DatastoreForm {
   }
 
   public function manageForm(&$form_state) {
+    // Latest status was not complete.
+    if ($this->cartoStatus == self::CARTODB_STATUS_UPLOADING) {
+      $this->sync();
+    }
+    $this->status();
     $form = array();
-    $form['source_status'] = array(
+    $form['source'] = array(
       '#type' => 'fieldset',
       '#title' => t('CartoDB Datastore Status'),
       '#tree' => TRUE,
+    );
+    $form['source']['status'] = array(
+      '#title' => t('CartoDB Datastore Status'),
+      '#type' => 'item',
+      '#markup' => '<br>' . $this->status(),
     );
     $form = confirm_form($form, t('Import all content from source?'), 'node/' . $this->node->nid, '', t('Import'), t('Cancel'), 'confirm feeds update');
     return $form;
