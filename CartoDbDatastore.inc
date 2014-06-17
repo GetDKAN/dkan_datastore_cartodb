@@ -21,12 +21,13 @@ class CartoDbDatastore extends Datastore implements DatastoreForm {
     $this->cartoUser = variable_get('dkan_datastore_cartodb_user', '');
     $this->key = variable_get('dkan_datastore_cartodb_key', '');
     $this->endpoint = "https://" . $this->cartoUser . $this->endpoint;
-    // CartoDB Settings.
+    // CartoDB settings.
     $this->table_id = '';
     $this->table_name = '';
     $this->queue_id = '';
-    $result = db_query("SELECT queue_id, table_id, table_name FROM {dkan_datastore_cartodb} WHERE uuid = :uuid", array(':uuid' => $this->uuid));
     $this->cartoStatus = self::CARTODB_STATUS_EMPTY;
+    // Initialize status.
+    $result = db_query("SELECT queue_id, table_id, table_name FROM {dkan_datastore_cartodb} WHERE uuid = :uuid", array(':uuid' => $this->uuid));
     foreach ($result as $record) {
       if ($record->table_id) {
         $this->table_id = $record->table_id;
