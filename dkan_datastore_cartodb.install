@@ -52,9 +52,6 @@ function dkan_datastore_cartodb_schema() {
       'id' => array('id'),
       'uuid' => array('uuid'),
     ),
-    //'unique keys' => array(
-    //  'uuid' => array('uuid'),
-   // ),
     'foreign keys' => array(
       'node_uuid' => array(
         'table' => 'node',
@@ -78,4 +75,36 @@ function dkan_datastore_cartodb_install() {
  */
 function dkan_datastore_cartodb_uninstall() {
   variable_set('dkan_datastore_class', 'DkanDatastore');
+}
+
+/**
+ * Implements hook_requirements().
+ */
+function dkan_datastore_cartodb_requirements($phase) {
+  $requirements = array();
+  if ($phase == 'runtime') {
+    $t = get_t();
+    $cartodb_lib = libraries_load('cartodbclient-php');
+    // Carto class has no version number.
+    $carto_class = DRUPAL_ROOT . '/' . $cartodb_lib['library path'] . '/cartodb.class.php';
+
+    if (!file_exists($carto_class)) {
+      $requirements['dkan_datastore_cartodb'] = array(
+        'title' => $t('DKAN CartoDB'),
+        'description' => $t('CartoDB PHP Library missing. Download from: <a href="@url">GitHub</a>', array('@url' => 'https://github.com/Vizzuality/cartodbclient-php')),
+        'value' => $t('Not Installed'),
+        'severity' => REQUIREMENT_WARNING,
+      );
+    }
+    else {
+      $requirements['dkan_datastore_cartodb'] = array(
+        'title' => $t('DKAN CartoDB'),
+        'description' => $t('CartoDB PHP library installed.'),
+        'value' => $t('Installed'),
+        'severity' => REQUIREMENT_OK,
+      );
+    }
+  }
+
+  return $requirements;
 }

@@ -41,3 +41,42 @@ function dkan_datastore_cartodb_settings() {
   );
   return system_settings_form($form);
 }
+
+/**
+ *
+ */
+function dkan_datastore_cartodb_heartbeat() {
+  if (!$carto_user = variable_get('dkan_datastore_cartodb_user', '') || !$carto_key = variable_get('dkan_datastore_cartodb_key', '')) {
+    return FALSE;
+  }
+}
+
+/**
+ * Implements hook_libraries_info().
+ */
+function dkan_datastore_cartodb_libraries_info() {
+  // A very simple library. No changing APIs (hence, no versions), no variants.
+  // Expected to be extracted into 'sites/all/libraries/simple'.
+  $libraries['cartodbclient-php'] = array(
+    'name' => 'CartoDB PHP Client',
+    'vendor url' => 'https://github.com/Vizzuality/cartodbclient-php',
+    'download url' => 'https://github.com/Vizzuality/cartodbclient-php',
+    'files' => array(
+      'php' => array('cartodb.class.php'),
+    ),
+    'version' => 'master',
+  );
+  return $libraries;
+}
+
+function cartodb_client() {
+  require_once libraries_get_path('cartodbclient-php') . '/cartodb.class.php';
+  $config = array(
+    'subdomain' => variable_get('cartodb_username', 'username'),
+    'password' => variable_get('cartodb_password', 'password'),
+    'email' => variable_get('cartodb_email', 'account@domain.com'),
+    'key' => variable_get('cartodb_consumer_key', 'key'),
+    'secret' => variable_get('cartodb_consumer_secret', 'secret'),
+  );
+ return new CartoDBClient($config);
+}
