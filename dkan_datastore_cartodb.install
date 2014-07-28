@@ -47,6 +47,12 @@ function dkan_datastore_cartodb_schema() {
         'length' => 255,
         'default' => '',
       ),
+      'viz_id' => array(
+        'description' => 'CartoDB Visualization ID.',
+        'type' => 'varchar',
+        'length' => 255,
+        'default' => '',
+      ),
     ),
     'indexes' => array(
       'id' => array('id'),
@@ -99,7 +105,6 @@ function dkan_datastore_cartodb_requirements($phase) {
     else {
       $requirements['dkan_datastore_cartodb'] = array(
         'title' => $t('DKAN CartoDB'),
-        'description' => $t('CartoDB PHP library installed.'),
         'value' => $t('Installed'),
         'severity' => REQUIREMENT_OK,
       );
