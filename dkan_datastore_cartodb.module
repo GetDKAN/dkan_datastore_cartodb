@@ -31,49 +31,61 @@ function dkan_datastore_cartodb_settings() {
   $form = array();
   $form['dkan_datastore_cartodb_user'] = array(
     '#type' => 'textfield',
-    '#title' => t('CartoDB Username.'),
+    '#title' => t('CartoDB Username'),
     '#default_value' => variable_get('dkan_datastore_cartodb_user', ''),
   );
   $form['dkan_datastore_cartodb_key'] = array(
     '#type' => 'textfield',
-    '#title' => t('CartoDB API Key.'),
-    '#description' => t('Sign up for an API key at !url.', array('!url' => 'http://cartodb.com')),
+    '#title' => t('CartoDB API Key'),
+    '#description' => t('Sign up for an API key at !url.', array('!url' => l(t('http://cartodb.com'), 'http://cartodb.com'))),
     '#default_value' => variable_get('dkan_datastore_cartodb_key', ''),
   );
   $form['dkan_datastore_cartodb_oauth_key'] = array(
     '#type' => 'textfield',
-    '#title' => t('CartoDB OAuth Key.'),
-    '#description' => t('Sign up for an OAuth key at !url.', array('!url' => 'http://cartodb.com')),
+    '#title' => t('CartoDB OAuth Key'),
+    '#description' => t('Sign up for an OAuth key at !url.', array('!url' => l(t('http://cartodb.com'), 'http://cartodb.com'))),
     '#default_value' => variable_get('dkan_datastore_cartodb_oauth_key', ''),
   );
   $form['dkan_datastore_cartodb_oauth_secret'] = array(
-    '#type' => 'textfield',
-    '#title' => t('CartoDB OAuth Secret.'),
-    '#description' => t('Sign up for an OAuth secret at !url.', array('!url' => 'http://cartodb.com')),
+    '#type' => 'password',
+    '#title' => t('CartoDB OAuth Secret'),
+    '#description' => t('Sign up for an OAuth secret at !url.', array('!url' => l(t('http://cartodb.com'), 'http://cartodb.com'))),
     '#default_value' => variable_get('dkan_datastore_cartodb_oauth_secret', ''),
   );
   $form['dkan_datastore_cartodb_pass'] = array(
-    '#type' => 'textfield',
-    '#title' => t('CartoDB Password.'),
+    '#type' => 'password',
+    '#title' => t('CartoDB Password'),
     '#default_value' => variable_get('dkan_datastore_cartodb_pass', ''),
   );
   $form['dkan_datastore_cartodb_email'] = array(
     '#type' => 'textfield',
-    '#title' => t('CartoDB Email.'),
+    '#title' => t('CartoDB Email'),
     '#default_value' => variable_get('dkan_datastore_cartodb_email', ''),
   );
+  $form['#submit'][] = 'dkan_datastore_cartodb_settings_submit';
   return system_settings_form($form);
 }
 
 /**
- * Whatever.
+ * Submit callback for dkan_datastore_cartodb_settings form.
+ */
+function dkan_datastore_cartodb_settings_submit($form, $form_state) {
+  // Deletes existing token file upon save so that new one can be generated.
+  $tmp_file = sys_get_temp_dir() . '/' . $form_state['values']['dkan_datastore_cartodb_user'] . '.cartodbtempkey.txt';
+  if (file_exists($tmp_file)) {
+    unlink($tmp_file);
+  }
+}
+
+/**
+ * Creates message about whether or not client connects.
  */
 function dkan_datastore_cartodb_heartbeat($client) {
   if ($client->authorized) {
-    drupal_set_message(t('Successfully connectedt to cartodb.'));
+    drupal_set_message(t('Successfully connected to CartoDB.'));
   }
   else {
-    drupal_set_message(t('Could not connect to cartodb.'), 'warning');
+    drupal_set_message(t('Could not connect to CartoDB.'), 'warning');
   }
 }
 
@@ -108,57 +120,6 @@ function dkan_datastore_cartodb_client() {
     'secret' => variable_get('dkan_datastore_cartodb_oauth_secret', 'secret'),
   );
   return new CartoDBClient($config);
-}
-
-/**
- * Implements hook_theme().
- */
-function dkan_datastore_cartodb_theme($existing, $type, $theme, $path) {
-  return array(
-    'dkan_datastore_cartodb_status' => array(
-      'arguments' => array(
-        'variables' => array('status' => NULL, 'table_id' => NULL, 'table_name' => NULL),
-      ),
-    ),
-  );
-}
-
-/**
- *
- */
-function theme_dkan_datastore_cartodb_status($vars) {
-  $output = array();
-
-  if ($vars['status'] == CartoDbDatastore::CARTODB_STATUS_IMPORTED) {
-    $output['status'] = array(
-      '#title' => t('File has been uploaded to CartoDB.'),
-      '#type' => 'item',
-      '#prefix' => '<p></p><span style="float: left; padding: 0px 10px 20px 0;" class="icon glyphicon glyphicon-th-large" aria-hidden="true"></span>',
-    );
-    $output['status']['id'] = array(
-      '#title' => t('Table ID'),
-      '#type' => 'item',
-      '#markup' => $vars['table_id'],
-    );
-    $output['status']['name'] = array(
-      '#title' => t('Table ID'),
-      '#type' => 'item',
-      '#markup' => $vars['table_id'],
-    );
-    return drupal_render($output);
-  }
-  elseif ($vars['status'] == CartoDbDatastore::CARTODB_STATUS_UPLOADING) {
-    $output['status'] = array(
-      '#title' => t('File Uploading...'),
-      '#type' => 'item',
-      '#prefix' => '<p></p><span style="float: left; padding: 0px 10px 20px 0;" class="icon glyphicon glyphicon-refresh" aria-hidden="true"></span>',
-    );
-    return drupal_render($output);
-    }
-    else {
-      return t('File not uploaded');
-    }
-    return FALSE;
 }
 
 /**
@@ -218,7 +179,4 @@ function dkan_datastore_cartodb_recline_default_formatter($vars) {
   else {
     return theme_recline_default_formatter($vars);
   }
-  var_dump($datastore->viz_id);
-
-  return 'ootie';
 }
