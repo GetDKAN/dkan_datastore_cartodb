@@ -12,7 +12,7 @@ The CartoDB SQL API is made available for querying instead of the native DKAN Da
 
 Installation
 ============
-This module requires the CartoDB PHP library: https://github.com/Vizzuality/cartodbclient-php
+This module requires the CartoDB PHP library: https://github.com/Nucivic/cartodbclient-php
 
 It should be downloaded and placed in ``sites/all/libraries``. The ``cartodb.class.php`` file should be located at ``sites/all/libraries/cartodbclient-php/cartodb.class.php``
 
