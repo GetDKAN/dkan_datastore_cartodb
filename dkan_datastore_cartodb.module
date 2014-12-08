@@ -62,6 +62,12 @@ function dkan_datastore_cartodb_settings() {
     '#title' => t('CartoDB Email'),
     '#default_value' => variable_get('dkan_datastore_cartodb_email', ''),
   );
+  $form['dkan_datastore_cartodb_url'] = array(
+    '#type' => 'textfield',
+    '#description' => t('The URL at which your organition items are output. DO NOT include http://'),
+    '#title' => t('CartoDB Custom url'),
+    '#default_value' => variable_get('dkan_datastore_cartodb_url', ''),
+  );
   $form['#submit'][] = 'dkan_datastore_cartodb_settings_submit';
   return system_settings_form($form);
 }
@@ -173,7 +179,8 @@ function dkan_datastore_cartodb_recline_default_formatter($vars) {
       ),
     );
     $output = drupal_render($file_output);
-    $output .= "<iframe width='100%' height='520' frameborder='0' src='//aaron-nuams.cartodb.com/viz/" . $datastore->viz_id  . "/embed_map?title=true&description=true&search=false&shareable=true&cartodb_logo=true&layer_selector=false&legends=false&scrollwheel=true&fullscreen=true&sublayer_options=1%7C1&sql=&sw_lat=32.13840869677251&sw_lon=59.17236328125&ne_lat=39.690280594818034&ne_lon=77.431640625' allowfullscreen webkitallowfullscreen mozallowfullscreen oallowfullscreen msallowfullscreen></iframe>";
+    $url = variable_get('dkan_datastore_cartodb_url', '');
+    $output .= "<iframe width='100%' height='520' frameborder='0' src='//" . $url . "/viz/" . $datastore->viz_id  . "/embed_map?title=true&description=true&search=false&shareable=true&cartodb_logo=true&layer_selector=false&legends=false&scrollwheel=true&fullscreen=true&sublayer_options=1%7C1' allowfullscreen webkitallowfullscreen mozallowfullscreen oallowfullscreen msallowfullscreen></iframe>";
     return $output;
   }
   else {
