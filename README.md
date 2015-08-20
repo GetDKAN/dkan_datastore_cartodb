@@ -21,4 +21,4 @@ You can also use the dkan_datastore_cartodb.make file: ``drush make --no-core dk
 Configuration and Use
 ====================
 
-See this blog post for details: http://www.nuams.com/blog/publish-beautiful-maps-cartodb-and-dkan
+See this blog post for details: http://www.nucivic.com/publish-beautiful-maps-cartodb-dkan/
